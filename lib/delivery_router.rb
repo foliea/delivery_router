@@ -56,7 +56,13 @@ class DeliveryRouter
   end
 
   def route(rider:)
-    []
+    order = find_order(rider: riders.find { |r| r.id == rider })
+
+    return [] unless order
+    [
+      restaurants.find { |r| r.id == order.restaurant_id },
+      customers.find   { |c| c.id == order.customer_id   }
+    ]
   end
 
   def delivery_time(customer:)
@@ -72,6 +78,28 @@ class DeliveryRouter
   private
 
   attr_reader :restaurants, :customers, :riders, :orders
+
+  def find_order(rider:, exclude: [])
+    exclude << rider.id
+
+    order_times_for(rider: rider).each do |time, order|
+      riders.reject { |r| exclude.include?(r.id) }.each do |r|
+        return route unless find_order(rider: r, exclude: exclude) == order
+      end
+    end
+    nil
+  end
+
+  def order_times_for(rider:)
+    orders_times = {}
+
+    orders.each do |order|
+      time = delivery_time_for(rider: rider, order: order)
+
+      orders_times[time] = order
+    end
+    orders_times
+  end
 
   def delivery_time_for(rider:, order:)
     restaurant = restaurants.find { |r| r.id == order.restaurant_id }
@@ -91,6 +119,6 @@ class DeliveryRouter
   end
 
   def distance(a, b)
-    Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y))
+    Math.sqrt((b.x - a.x)**2 + (b.y - a.y)**2)
   end
 end
