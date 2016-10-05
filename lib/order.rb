@@ -1,5 +1,5 @@
 class Order
-  attr_reader :restaurant, :customer
+  attr_reader :restaurant, :customer, :dispatcher
 
   def initialize(restaurant:, customer:)
     @restaurant = restaurant
@@ -19,8 +19,6 @@ class Order
   end
 
   private
-
-  attr_reader :dispatcher
 
   def time_rider_to_restaurant(rider)
     time_between(rider, restaurant, speed: rider.speed)

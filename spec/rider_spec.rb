@@ -58,9 +58,7 @@ describe Rider do
   end
 
   describe '#cancel_dispatching!' do
-    subject { rider.cancel_dispatching! }
-
-    context 'when rider has an order' do
+    context 'when rider is dispatching an order' do
       before do
         rider.dispatch!(order)
 
