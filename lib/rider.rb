@@ -23,7 +23,7 @@ class Rider
     @order == order
   end
 
-  def cancel_dispatching
+  def cancel_dispatching!
     @order = nil
   end
 

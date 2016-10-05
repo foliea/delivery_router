@@ -27,7 +27,7 @@ class DeliveryRouter
 
     orders.delete(order)
 
-    riders.find { |rider| rider.dispatching_order?(order).cancel_dispatching }
+    riders.find { |rider| rider.dispatching_order?(order).cancel_dispatching! }
   end
 
   def route(rider:)
