@@ -22,43 +22,42 @@ describe Order do
   end
 
   describe '#delivery_time_for' do
-    let(:rider) { double(x: 0, y: 0, speed: 10) }
-
-    let(:customer) { double(x: 2, y: 2) }
-
-    subject(:delivery_time) { order.delivery_time_for(rider) }
-
-    context 'when rider time to get to the restaurant is below cooking time' do
-      let(:rider) { double(x: 0, y: 0, speed: 1000000) }
-
-      let(:restaurant) { double(x: 1, y: 1, cooking_time: 35) }
-
-      it 'equals cooking time + restaurant-customer time' do
-        expect(delivery_time.round(2)).to eq(restaurant.cooking_time)
-      end
+    let(:time_test_table) do
+      [
+        {
+          rider:      double(x: 0, y: 0, speed: 10),
+          restaurant: double(x: 1, y: 1, cooking_time: 40),
+          customer:   double(x: 2, y: 2),
+          result:     48.49
+        },
+        {
+          rider:      double(x: 4, y: 3, speed: 20),
+          restaurant: double(x: 5, y: 8, cooking_time: 10),
+          customer:   double(x: 2, y: 9),
+          result:     24.78
+        },
+        {
+          rider:      double(x: 1, y: 0, speed: 5),
+          restaurant: double(x: 4, y: 3, cooking_time: 5),
+          customer:   double(x: 9, y: 3),
+          result:     110.91
+        }
+      ]
     end
 
-    context 'when rider time to get to the restaurant is above cooking time' do
-      let(:restaurant) { double(x: 1, y: 1, cooking_time: 5) }
-
-      it 'equals rider-restaurant time + restaurant-customer time' do
-        is_expected.to be > restaurant.cooking_time
+    it 'equals ride-restaurant time or cooking time plus restaurant-customer time' do
+      time_test_table.each do |time_test|
+        order = Order.new(
+          restaurant: time_test[:restaurant], customer: time_test[:customer]
+        )
+        expect(
+          order.delivery_time_for(time_test[:rider]).round(2)
+        ).to eq(time_test[:result])
       end
     end
   end
 
   describe '#distance_for' do
-    it 'equals the euclidian distance between rider-restaurant plus restaurant-customer' do
-      distance_test_table.each do |distance_test|
-        order = Order.new(
-          restaurant: distance_test[:restaurant], customer: distance_test[:customer]
-        )
-        expect(
-          order.distance_for(distance_test[:rider]).round(2)
-        ).to eq(distance_test[:result])
-      end
-    end
-
     let(:distance_test_table) do
       [
         {
@@ -80,6 +79,17 @@ describe Order do
           result:     9.24
         }
       ]
+    end
+
+    it 'equals the euclidian distance between rider-restaurant plus restaurant-customer' do
+      distance_test_table.each do |distance_test|
+        order = Order.new(
+          restaurant: distance_test[:restaurant], customer: distance_test[:customer]
+        )
+        expect(
+          order.distance_for(distance_test[:rider]).round(2)
+        ).to eq(distance_test[:result])
+      end
     end
   end
 
