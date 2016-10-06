@@ -33,21 +33,26 @@ describe DeliveryRouter do
 
     before(:all) do
       @customers = [
-        Customer.new(:id => 1, :x => 1, :y => 1),
-        Customer.new(:id => 2, :x => 5, :y => 1),
-        Customer.new(:id => 3, :x => 0, :y => 5),
-        Customer.new(:id => 4, :x => 0, :y => 5),
-      ]
+          Customer.new(:id => 1, :x => 1, :y => 1),
+          Customer.new(:id => 2, :x => 5, :y => 1),
+          Customer.new(:id => 3, :x => 0, :y => 5),
+          Customer.new(:id => 4, :x => 0, :y => 5),
+          Customer.new(:id => 5, :x => 0, :y => 7),
+          Customer.new(:id => 6, :x => 0, :y => 7),
+        ]
       @restaurants = [
         Restaurant.new(:id => 3, :cooking_time => 15, :x => 0, :y => 0),
         Restaurant.new(:id => 4, :cooking_time => 35, :x => 5, :y => 5),
         Restaurant.new(:id => 5, :cooking_time => 5,  :x => 0, :y => 4),
+        Restaurant.new(:id => 6, :cooking_time => 5,  :x => 0, :y => 8),
       ]
       @riders = [
         Rider.new(:id => 1, :speed => 10, :x => 2, :y => 0),
         Rider.new(:id => 2, :speed => 10, :x => 1, :y => 0),
-        Rider.new(:id => 3, :speed => 5, :x => 1, :y => 4),
-        Rider.new(:id => 4, :speed => 5, :x => 1, :y => 4),
+        Rider.new(:id => 3, :speed => 5,  :x => 1, :y => 4),
+        Rider.new(:id => 4, :speed => 5,  :x => 1, :y => 4),
+        Rider.new(:id => 5, :speed => 10, :x => 1, :y => 12),
+        Rider.new(:id => 6, :speed => 10, :x => 0, :y => 11),
       ]
       @delivery_router = DeliveryRouter.new(@restaurants, @customers, @riders)
     end
@@ -106,38 +111,72 @@ describe DeliveryRouter do
           expect(@delivery_router.delivery_time(:customer => 2)).to be < 60
         end
       end
+    end
 
-      context "given customer 3 orders from restaurant 5" do
+    context "given customer 3 orders from restaurant 5" do
+      before(:all) do
+        @delivery_router.add_order(:customer => 3, :restaurant => 5)
+      end
+
+      context "given customer 4 orders from restaurant 5" do
         before(:all) do
-          @delivery_router.add_order(:customer => 3, :restaurant => 5)
+          @delivery_router.add_order(:customer => 4, :restaurant => 5)
         end
 
-        context "given customer 4 orders from restaurant 5" do
-          before(:all) do
-            @delivery_router.add_order(:customer => 4, :restaurant => 5)
-          end
+        it "sends rider 3 to customer 3 through restaurant 5" do
+          route = @delivery_router.route(:rider => 3)
+          expect(route.length).to eql(2)
+          expect(route[0].id).to eql(5)
+          expect(route[1].id).to eql(3)
+        end
 
-          it "sends rider 3 to customer 3 through restaurant 5" do
-            route = @delivery_router.route(:rider => 3)
-            expect(route.length).to eql(2)
-            expect(route[0].id).to eql(5)
-            expect(route[1].id).to eql(3)
-          end
+        it "sends rider 4 to customer 4 through restaurant 5" do
+          route = @delivery_router.route(:rider => 4)
+          expect(route.length).to eql(2)
+          expect(route[0].id).to eql(5)
+          expect(route[1].id).to eql(4)
+        end
 
-          it "sends rider 4 to customer 4 through restaurant 5" do
-            route = @delivery_router.route(:rider => 4)
-            expect(route.length).to eql(2)
-            expect(route[0].id).to eql(5)
-            expect(route[1].id).to eql(4)
-          end
+        it "delights customer 3" do
+          expect(@delivery_router.delivery_time(:customer => 3)).to be < 60
+        end
 
-          it "delights customer 3" do
-            expect(@delivery_router.delivery_time(:customer => 3)).to be < 60
-          end
+        it "delights customer 4" do
+          expect(@delivery_router.delivery_time(:customer => 4)).to be < 60
+        end
+      end
+    end
 
-          it "delights customer 4" do
-            expect(@delivery_router.delivery_time(:customer => 4)).to be < 60
-          end
+    context "given customer 5 orders from restaurant 6" do
+      before(:all) do
+        @delivery_router.add_order(:customer => 5, :restaurant => 6)
+      end
+
+      context "given customer 6 orders from restaurant 6" do
+        before(:all) do
+          @delivery_router.add_order(:customer => 6, :restaurant => 6)
+        end
+
+        it "sends rider 5 to customer 6 through restaurant 6" do
+          route = @delivery_router.route(:rider => 5)
+          expect(route.length).to eql(2)
+          expect(route[0].id).to eql(6)
+          expect(route[1].id).to eql(6)
+        end
+
+        it "sends rider 6 to customer 5 through restaurant 6" do
+          route = @delivery_router.route(:rider => 6)
+          expect(route.length).to eql(2)
+          expect(route[0].id).to eql(6)
+          expect(route[1].id).to eql(5)
+        end
+
+        it "delights customer 5" do
+          expect(@delivery_router.delivery_time(:customer => 5)).to be < 60
+        end
+
+        it "delights customer 6" do
+          expect(@delivery_router.delivery_time(:customer => 6)).to be < 60
         end
       end
     end
