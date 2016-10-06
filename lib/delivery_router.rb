@@ -15,7 +15,9 @@ class DeliveryRouter
     order = Order.new(
       restaurant: restaurant_by_id(restaurant), customer: customer_by_id(customer)
     )
-    quickest_rider_for(order).dispatch!(order)
+    optimum_rider_for(order).dispatch!(order)
+
+    p "dispatching rider #{order.dispatcher.id} to customer #{order.customer.id} through restaurant #{order.restaurant.id} in #{order.delivery_time}"
 
     orders << order
   end
@@ -62,9 +64,14 @@ class DeliveryRouter
     riders.reject { |rider| rider.dispatched? }
   end
 
-  def quickest_rider_for(order)
-    riders_available.map do |rider|
-      { rider: rider, time: order.delivery_time_for(rider) }
-    end.sort_by { |e| e[:time] }.first[:rider]
+  def optimum_rider_for(order)
+    # Sort first riders by time required to complete the order.
+    riders_infos = riders_available.map do |rider|
+      { rider: rider, time: order.delivery_time_for(rider), distance: order.distance_for(rider) }
+    end.sort_by { |e| e[:time] }
+    # Sort then riders by distance required to reach to the customer position.
+    riders_infos.select do |infos|
+      infos[:time] == riders_infos.first[:time]
+    end.sort_by { |e| e[:distance] }.first[:rider]
   end
 end

@@ -14,6 +14,10 @@ class Order
     time_rider_to_restaurant(rider) + time_restaurant_customer(at: rider.speed)
   end
 
+  def distance_for(rider)
+    distance(rider, restaurant) + distance(restaurant, customer)
+  end
+
   def mark_as_dispatched_by!(rider)
     @dispatcher = rider
   end
@@ -21,13 +25,13 @@ class Order
   private
 
   def time_rider_to_restaurant(rider)
-    time_between(rider, restaurant, speed: rider.speed)
+    time = time_between(rider, restaurant, speed: rider.speed)
+
+    restaurant.cooking_time > time  ? restaurant.cooking_time : time
   end
 
   def time_restaurant_customer(at:)
-    time = time_between(restaurant, customer, speed: at)
-
-    time <= restaurant.cooking_time ? time : restaurant.cooking_time
+    time_between(restaurant, customer, speed: at)
   end
 
   def time_between(a, b, speed:)
