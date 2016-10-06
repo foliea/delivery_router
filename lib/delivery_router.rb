@@ -17,8 +17,6 @@ class DeliveryRouter
     )
     optimum_rider_for(order).dispatch!(order)
 
-    p "dispatching rider #{order.dispatcher.id} to customer #{order.customer.id} through restaurant #{order.restaurant.id} in #{order.delivery_time}"
-
     orders << order
   end
 
