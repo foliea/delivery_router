@@ -66,10 +66,10 @@ class DeliveryRouter
     # Sort first riders by time required to complete the order.
     riders_infos = riders_available.map do |rider|
       { rider: rider, time: order.delivery_time_for(rider), distance: order.distance_for(rider) }
-    end.sort_by { |e| e[:time] }
+    end.sort_by { |r| r[:time] }
     # Sort then riders by distance required to reach to the customer position.
     riders_infos.select do |infos|
       infos[:time] == riders_infos.first[:time]
-    end.sort_by { |e| e[:distance] }.first[:rider]
+    end.sort_by { |r| r[:distance] }.first[:rider]
   end
 end

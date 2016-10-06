@@ -11,7 +11,7 @@ class Order
   end
 
   def delivery_time_for(rider)
-    time_rider_to_restaurant(rider) + time_restaurant_customer(at: rider.speed)
+    time_rider_restaurant(rider) + time_restaurant_customer(at: rider.speed)
   end
 
   def distance_for(rider)
@@ -24,7 +24,7 @@ class Order
 
   private
 
-  def time_rider_to_restaurant(rider)
+  def time_rider_restaurant(rider)
     time = time_between(rider, restaurant, speed: rider.speed)
 
     restaurant.cooking_time > time  ? restaurant.cooking_time : time
